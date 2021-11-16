@@ -1,0 +1,4 @@
+deploy:
+  - helm repo add bitnami https://charts.bitnami.com/bitnami
+  - helm upgrade --install kafka bitnami/kafka -f kafka/values.yml
+  - okteto stack deploy -f vote/okteto-stack.yml

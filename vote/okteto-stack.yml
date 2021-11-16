@@ -1,0 +1,9 @@
+name: voting-spring
+
+services:
+  vote-spring:
+    public: true
+    build: .
+    replicas: 2
+    ports:
+      - 8080
