@@ -1,4 +1,4 @@
 name: vote-spring
-command: bash
+command: ./mvnw clean spring-boot:run
 sync:
 - .:/app
