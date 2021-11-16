@@ -1,4 +1,4 @@
 name: vote-spring
-command: ./mvnw clean spring-boot:run
+command: ./mvnw spring-boot:run
 sync:
 - .:/app
