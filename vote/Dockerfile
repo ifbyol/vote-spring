@@ -3,7 +3,7 @@ FROM openjdk:11
 WORKDIR /app
 COPY . .
 RUN ./mvnw clean package -Dmaven.test.skip=true
-COPY ./target/*.jar app.jar
+RUN cp ./target/*.jar app.jar
 
 EXPOSE 8080
 
