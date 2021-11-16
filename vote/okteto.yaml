@@ -1,0 +1,4 @@
+name: vote-spring
+command: bash
+sync:
+- .:/app
