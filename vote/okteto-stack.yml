@@ -3,7 +3,7 @@ name: voting-spring
 services:
   vote-spring:
     public: true
-    image: okteto.dev/vote-spring:test
+    image: okteto.dev/vote-spring:fix
     replicas: 2
     ports:
       - 8080
