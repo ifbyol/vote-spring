@@ -27,7 +27,7 @@ public class VoteController {
     private static final String OPTION_B_ENV_VAR = "OPTION_B";
     private static final String KAFKA_TOPIC = "votes";
 
-    private Logger logger = LoggerFactory.getLogger(VoteController.class);
+    private final Logger logger = LoggerFactory.getLogger(VoteController.class);
 
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
@@ -43,6 +43,7 @@ public class VoteController {
         model.addAttribute("hostname", v.getHostname());
         model.addAttribute("vote", null);
 
+        logger.warn("Get request");
         if (StringUtils.isEmpty(voter)) {
             voter = UUID.randomUUID().toString();
         }
@@ -74,7 +75,8 @@ public class VoteController {
         Cookie cookie = new Cookie("voter_id", voter);
         response.addCookie(cookie);
 
-        ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send(KAFKA_TOPIC, voter, vote);
+        kafkaTemplate.send(KAFKA_TOPIC, voter, vote);
+        /*ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send(KAFKA_TOPIC, voter, vote);
 
         future.addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
             @Override
@@ -90,7 +92,7 @@ public class VoteController {
                         vote,
                         ex.getMessage());
             }
-        });
+        });*/
 
         return "index";
     }
