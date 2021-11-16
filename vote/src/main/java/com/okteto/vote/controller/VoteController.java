@@ -1,9 +1,14 @@
 package com.okteto.vote.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.util.concurrent.ListenableFutureCallback;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -21,6 +26,8 @@ public class VoteController {
     private static final String OPTION_A_ENV_VAR = "OPTION_A";
     private static final String OPTION_B_ENV_VAR = "OPTION_B";
     private static final String KAFKA_TOPIC = "votes";
+
+    private Logger logger = LoggerFactory.getLogger(VoteController.class);
 
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
@@ -62,11 +69,28 @@ public class VoteController {
         if (StringUtils.isEmpty(voter)) {
             voter = UUID.randomUUID().toString();
         }
+        logger.info("vote received!");
 
         Cookie cookie = new Cookie("voter_id", voter);
         response.addCookie(cookie);
 
-        kafkaTemplate.send(KAFKA_TOPIC, voter, vote);
+        ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send(KAFKA_TOPIC, voter, vote);
+
+        future.addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
+            @Override
+            public void onSuccess(SendResult<String, String> result) {
+                logger.info("Message [{}] delivered with offset {}",
+                        vote,
+                        result.getRecordMetadata().offset());
+            }
+
+            @Override
+            public void onFailure(Throwable ex) {
+                logger.warn("Unable to deliver message [{}]. {}",
+                        vote,
+                        ex.getMessage());
+            }
+        });
 
         return "index";
     }
